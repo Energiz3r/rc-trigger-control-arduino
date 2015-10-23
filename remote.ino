@@ -2,7 +2,7 @@
 //  This script lets you use a trigger-style R/C controller
 //    to control a tank-style bot with left/right drivers
 //--------------------------------------------------------------
-// v1.1
+// v1.0
 //TO DO:
 // -Add support for per-channel upper/lower/centre limits (useful if ESCs or motors are not identical)
 
@@ -10,6 +10,9 @@
 
 //serial output. 0 = off, 1 = status/output display, 2 = show PWM values (for calibrating receiver)
 const int serial_output = 2;
+
+//swaps left/right output channels
+const boolean channel_swap = false;
 
 //reverse steering direction while moving forward
 const boolean steering_swap = false;
@@ -323,9 +326,23 @@ void loop() {
   //debug output
   if (serial_output == 2) { Serial.println("throttle position: " + String(throtpos) + " steering position: " + String(steerpos)); }
   
-  //set the outputs to match the movements calculated above
-  leftout.write(left_channel);
-  rightout.write(right_channel);
+  //if the channels are swapped
+  if (channel_swap)
+  {
+    
+    //set the outputs to match the movements calculated above
+    leftout.write(right_channel);
+    rightout.write(left_channel);
+    
+  }
+  else
+  {
+  
+    //set the outputs to match the movements calculated above
+    leftout.write(left_channel);
+    rightout.write(right_channel);
+    
+  }
   
 }
 
