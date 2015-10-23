@@ -2,7 +2,7 @@
 //  This script lets you use a trigger-style R/C controller
 //    to control a tank-style bot with left/right drivers
 //--------------------------------------------------------------
-// v1.0
+// v1.1
 //TO DO:
 // -Add support for per-channel upper/lower/centre limits (useful if ESCs or motors are not identical)
 
@@ -12,9 +12,14 @@
 const int serial_output = 2;
 
 //reverse steering direction while moving forward
-const boolean steering_swap = true;
+const boolean steering_swap = false;
 //reverse steering direction while moving in reverse
-const boolean steering_reverse_swap = true;
+const boolean steering_reverse_swap = false;
+
+//the maximum difference (in PWM value) each cycle to allow the input to change by. This prevents spikes in PWM input from instantly stopping or changing wheel direction (smoothes stop/go)
+const int difference = 50;
+//enable or disable this setting
+const boolean rate_change_limit = true;
 
 //this value alters the neutral position and upper/lower limits of the ESC output range
 const float outputcentre = 90; //limits are usually 0-180 degrees where 90 is neutral for an ESC. adjust if bot moves while throttle is neutral
@@ -79,21 +84,27 @@ void setup() {
 
 }
 
+//tracks throt/steer positions for rate change limiting
 int throtpos_last = 0;
 int steerpos_last = 0;
-int difference = 50;
 
 void loop() {
 
   throtpos = pulseIn(rx_throt_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
-  if (throtpos > throtpos_last) { if ((throtpos - throtpos_last) > difference) { throtpos = throtpos_last + difference; } }
-  if (throtpos < throtpos_last) { if ((throtpos_last - throtpos) > difference) {throtpos = throtpos_last - difference; } }
+  if (rate_change_limit)
+  {
+    if (throtpos > throtpos_last) { if ((throtpos - throtpos_last) > difference) { throtpos = throtpos_last + difference; } }
+    if (throtpos < throtpos_last) { if ((throtpos_last - throtpos) > difference) {throtpos = throtpos_last - difference; } }
+  }
   if (throtpos > throt_upper) { throtpos = throt_upper; } //clamp the values to within the useable range
   if (throtpos < throt_lower) { throtpos = throt_lower; }
   throtpos_last = throtpos;
   steerpos = pulseIn(rx_steer_input, HIGH, 25000);
-  if (steerpos > steerpos_last) { if ((steerpos - steerpos_last) > difference) {steerpos = steerpos_last + difference; } }
-  if (steerpos < steerpos_last) { if ((steerpos_last - steerpos) > difference) {steerpos = steerpos_last - difference; } }
+  if (rate_change_limit)
+  {
+    if (steerpos > steerpos_last) { if ((steerpos - steerpos_last) > difference) {steerpos = steerpos_last + difference; } }
+    if (steerpos < steerpos_last) { if ((steerpos_last - steerpos) > difference) {steerpos = steerpos_last - difference; } }
+  }
   if (steerpos > steer_upper) { steerpos = steer_upper; }
   if (steerpos < steer_lower) { steerpos = steer_lower; }
   steerpos_last = steerpos;
