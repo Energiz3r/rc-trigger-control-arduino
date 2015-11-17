@@ -1,6 +1,13 @@
 # rc-trigger-control-arduino
 Use an arduino to control a 'tank style' vehicle with separate ESCs for left and right wheels with a trigger-and-wheel style R/C transmitter.
 
+# How to build
+
+1. Download the Arduino IDE from https://www.arduino.cc/en/Main/Software
+2. Open the main source file remote/remote.ino in the IDE
+3. Click the 'tick' (verify) button in the IDE to compile
+4. Click the 'right arrow' (upload) button in the IDE to upload to your device
+
 # How to use
 This guide assumes you have some basic knowledge of electronics and know how to flash your code onto your arduino.
 
