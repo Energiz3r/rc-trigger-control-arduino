@@ -28,8 +28,8 @@ void setup() {
   Serial.begin(9600); //pour a bowl of Serial
 }
 
-int pulse_in_and_limit(int input, int last_pos, int max_diff, float lower_limit, float upper_limit) {
-  int pos = pulseIn(input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
+int pulse_in_and_limit(ReceiverConfig &rx_conf, int last_pos, int max_diff) {
+  int pos = pulseIn(rx_conf.rx_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
   if (rate_change_limit) {
     if (pos > last_pos) { 
       if ((pos - last_pos) > max_diff) {
@@ -43,19 +43,19 @@ int pulse_in_and_limit(int input, int last_pos, int max_diff, float lower_limit,
     }
   }
   //clamp the values to within the useable range
-  if (pos > upper_limit) { 
-    pos = upper_limit; 
+  if (pos > rx_conf.limit_upper) { 
+    pos = rx_conf.limit_upper; 
   } 
-  if (pos < lower_limit) { 
-    pos = lower_limit; 
+  if (pos < rx_conf.limit_lower) { 
+    pos = rx_conf.limit_lower; 
   }  
 }
 
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
-  int throtpos = pulse_in_and_limit(throttle.rx_input, throtpos_last, difference, throttle.limit_lower, throttle.limit_upper);
-  int steerpos = pulse_in_and_limit(steer.rx_input, steerpos_last, difference, steer.limit_lower, steer.limit_upper);
+  int throtpos = pulse_in_and_limit(throttle, throtpos_last, difference);
+  int steerpos = pulse_in_and_limit(steer, steerpos_last, difference);
   throtpos_last = throtpos;
   steerpos_last = steerpos;
   
