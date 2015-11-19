@@ -28,26 +28,37 @@ void setup() {
   Serial.begin(9600); //pour a bowl of Serial
 }
 
+int pulse_in_and_limit(int input, int last_pos, int max_diff, float lower_limit, float upper_limit) {
+  int pos = pulseIn(input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
+  if (rate_change_limit) {
+    if (pos > last_pos) { 
+      if ((pos - last_pos) > max_diff) {
+        pos = last_pos + max_diff; 
+      } 
+    }
+    if (pos < last_pos) { 
+      if ((last_pos - pos) > max_diff) {
+        pos = last_pos - max_diff; 
+      } 
+    }
+  }
+  //clamp the values to within the useable range
+  if (pos > upper_limit) { 
+    pos = upper_limit; 
+  } 
+  if (pos < lower_limit) { 
+    pos = lower_limit; 
+  }  
+}
+
 void loop() {
+  
   //stores the current positions for the steering and throttle PWM values
-  int throtpos = pulseIn(rx_throt_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
-  if (rate_change_limit)
-  {
-    if (throtpos > throtpos_last) { if ((throtpos - throtpos_last) > difference) { throtpos = throtpos_last + difference; } }
-    if (throtpos < throtpos_last) { if ((throtpos_last - throtpos) > difference) {throtpos = throtpos_last - difference; } }
-  }
-  if (throtpos > throt_upper) { throtpos = throt_upper; } //clamp the values to within the useable range
-  if (throtpos < throt_lower) { throtpos = throt_lower; }
+  int throtpos = pulse_in_and_limit(rx_throt_input, throtpos_last, difference, throt_lower, throt_upper);
+  int steerpos = pulse_in_and_limit(rx_steer_input, steerpos_last, difference, steer_lower, steer_upper);
   throtpos_last = throtpos;
-  int steerpos = pulseIn(rx_steer_input, HIGH, 25000);
-  if (rate_change_limit)
-  {
-    if (steerpos > steerpos_last) { if ((steerpos - steerpos_last) > difference) {steerpos = steerpos_last + difference; } }
-    if (steerpos < steerpos_last) { if ((steerpos_last - steerpos) > difference) {steerpos = steerpos_last - difference; } }
-  }
-  if (steerpos > steer_upper) { steerpos = steer_upper; }
-  if (steerpos < steer_lower) { steerpos = steer_lower; }
   steerpos_last = steerpos;
+  
   int left_channel = 0;
   int right_channel = 0;
   int neutral_safety = 0;
