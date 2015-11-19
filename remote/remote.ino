@@ -6,19 +6,19 @@
 //TO DO:
 // -Add support for per-channel upper/lower/centre limits (useful if ESCs or motors are not identical)
 
+#include <Servo.h>
 #include "config.h"
 
-int throtpos = (throt_neutral_upper - throt_neutral_lower) / 2; //stores the current positions for the steering and throttle PWM values
-int steerpos = (steer_neutral_upper - steer_neutral_lower) / 2;
-int long tracklostcon = 0; //tracks if the connection is interrupted
-
 //set up servo objects
-#include <Servo.h>
 Servo leftout; //L channel
 Servo rightout; //R channel
 
-void setup() {
+//tracks throt/steer positions for rate change limiting
+int throtpos_last = 0;
+int steerpos_last = 0;
+int long tracklostcon = 0; //tracks if the connection is interrupted
 
+void setup() {
   //set up pins
   leftout.attach(esc_left_output); //left channel output
   rightout.attach(esc_right_output); //right channel output
@@ -26,16 +26,11 @@ void setup() {
   pinMode(rx_steer_input, INPUT); //steering input
 
   Serial.begin(9600); //pour a bowl of Serial
-
 }
 
-//tracks throt/steer positions for rate change limiting
-int throtpos_last = 0;
-int steerpos_last = 0;
-
 void loop() {
-
-  throtpos = pulseIn(rx_throt_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
+  //stores the current positions for the steering and throttle PWM values
+  int throtpos = pulseIn(rx_throt_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
   if (rate_change_limit)
   {
     if (throtpos > throtpos_last) { if ((throtpos - throtpos_last) > difference) { throtpos = throtpos_last + difference; } }
@@ -44,7 +39,7 @@ void loop() {
   if (throtpos > throt_upper) { throtpos = throt_upper; } //clamp the values to within the useable range
   if (throtpos < throt_lower) { throtpos = throt_lower; }
   throtpos_last = throtpos;
-  steerpos = pulseIn(rx_steer_input, HIGH, 25000);
+  int steerpos = pulseIn(rx_steer_input, HIGH, 25000);
   if (rate_change_limit)
   {
     if (steerpos > steerpos_last) { if ((steerpos - steerpos_last) > difference) {steerpos = steerpos_last + difference; } }
