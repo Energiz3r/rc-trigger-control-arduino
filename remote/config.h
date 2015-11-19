@@ -25,31 +25,49 @@ const float outputmin = 40; //I am using 130 & 40 as the ESC cuts out when the f
 //supports float values between 0 and 2
 const float steering_sensitivity = 2; //default value is 2
 
-//these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
-const float throt_neutral_upper = 1500; //these values represent the PWM width the receiver outputs while in neutral positions.
-const float throt_neutral_lower = 1400; //it fluctuates so we specify a range (upper and lower limits)
-const float steer_neutral_upper = 1550; //if you can't get your bot to stay still with throttle/steering in neutral, widen these ranges
-const float steer_neutral_lower = 1400;
-const float throt_upper = 1900; //these next values represent the entire range of input
-const float throt_lower = 1000;
-const float steer_upper = 1800;
-const float steer_lower = 1100; //don't forget to set the values in the next section for when the TX is disconnected
-
 //this value alters the sensitivity of the safety cut off (when receiver loses connection to transmitter). you shouldn't need to change this
 //this works by detecting when steering and throttle are both within a certain range - the values the receiver outputs while the transmitter is turned off
 //your receiver may behave differently - if that's the case you can ignore this setting.
 const int lostconwaittime = 500; //time (in ms) to wait before setting outputs to neutral positions if receiver is outputting these ranges continuously
 
-//these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
-const int throt_lostcon_upper = 1700; //throttle
-const int throt_lostcon_lower = 1600;
-const int steer_lostcon_upper = 1200; //steering
-const int steer_lostcon_lower = 1000;
-
 //configure digital pins on arduino
 const int esc_left_output = 22; //connect to left ESC signal wire
 const int esc_right_output = 24; //right ESC signal wire
-const int rx_throt_input = 28; //signal wire for receiver throttle (usually channel 2)
-const int rx_steer_input = 30; //receiver steering (usually channel 1)
 
 //most ESCs will provide ~6V to the receiver which you can also use to power the arduino. Connect red wire from ESC or receiver to +5V header or barrel connector on arduino
+
+// Defines the configuration that can be supplied for a receiver
+struct ReceiverConfig {
+    float neutral_upper;
+    float neutral_lower;
+    float limit_upper;
+    float limit_lower;
+    int lostcon_upper;
+    int lostcon_lower;
+    int rx_input;
+};
+
+ReceiverConfig throttle = { 
+  //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
+  neutral_upper: 1500, //these values represent the PWM width the receiver outputs while in neutral positions.
+  neutral_lower: 1400, //it fluctuates so we specify a range (upper and lower limits)
+  limit_upper: 1900, //these next values represent the entire range of input
+  limit_lower: 1000, 
+  //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
+  lostcon_upper: 1700, 
+  lostcon_lower: 1600, 
+  rx_input: 28 //signal wire for receiver throttle (usually channel 2)
+};
+
+ReceiverConfig steer = {
+  //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
+  neutral_upper: 1550, //if you can't get your bot to stay still with throttle/steering in neutral, widen these ranges
+  neutral_lower: 1400,
+  limit_upper: 1800,
+  limit_lower: 1100, //don't forget to set the values in the next section for when the TX is disconnected
+  //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
+  lostcon_upper: 1200,
+  lostcon_lower: 1000,
+  rx_input: 30 //receiver steering (usually channel 1)
+};
+
