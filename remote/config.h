@@ -1,18 +1,21 @@
+#include <Servo.h>
+#include "Receiver.hpp"
+
 //serial output. 0 = off, 1 = status/output display, 2 = show PWM values (for calibrating receiver)
 const int serial_output = 2;
 
 //swaps left/right output channels
-const boolean channel_swap = false;
+const bool channel_swap = false;
 
 //reverse steering direction while moving forward
-const boolean steering_swap = false;
+const bool steering_swap = false;
 //reverse steering direction while moving in reverse
-const boolean steering_reverse_swap = false;
+const bool steering_reverse_swap = false;
 
 //the maximum difference (in PWM value) each cycle to allow the input to change by. This prevents spikes in PWM input from instantly stopping or changing wheel direction (smoothes stop/go)
 const int difference = 50;
 //enable or disable this setting
-const boolean rate_change_limit = true;
+const bool rate_change_limit = true;
 
 //this value alters the neutral position and upper/lower limits of the ESC output range
 const float outputcentre = 90; //limits are usually 0-180 degrees where 90 is neutral for an ESC. adjust if bot moves while throttle is neutral
@@ -35,19 +38,7 @@ const int esc_left_output = 22; //connect to left ESC signal wire
 const int esc_right_output = 24; //right ESC signal wire
 
 //most ESCs will provide ~6V to the receiver which you can also use to power the arduino. Connect red wire from ESC or receiver to +5V header or barrel connector on arduino
-
-// Defines the configuration that can be supplied for a receiver
-struct ReceiverConfig {
-    float neutral_upper;
-    float neutral_lower;
-    float limit_upper;
-    float limit_lower;
-    int lostcon_upper;
-    int lostcon_lower;
-    int rx_input;
-};
-
-ReceiverConfig throttle = { 
+Receiver throttle = { 
   //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
   neutral_upper: 1500, //these values represent the PWM width the receiver outputs while in neutral positions.
   neutral_lower: 1400, //it fluctuates so we specify a range (upper and lower limits)
@@ -56,10 +47,11 @@ ReceiverConfig throttle = {
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
   lostcon_upper: 1700, 
   lostcon_lower: 1600, 
-  rx_input: 28 //signal wire for receiver throttle (usually channel 2)
+  rx_input: 28, //signal wire for receiver throttle (usually channel 2)
+  rate_change_limit: rate_change_limit
 };
 
-ReceiverConfig steer = {
+Receiver steer = {
   //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
   neutral_upper: 1550, //if you can't get your bot to stay still with throttle/steering in neutral, widen these ranges
   neutral_lower: 1400,
@@ -68,6 +60,7 @@ ReceiverConfig steer = {
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
   lostcon_upper: 1200,
   lostcon_lower: 1000,
-  rx_input: 30 //receiver steering (usually channel 1)
+  rx_input: 30, //receiver steering (usually channel 1)
+  rate_change_limit: rate_change_limit
 };
 

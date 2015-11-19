@@ -6,7 +6,6 @@
 //TO DO:
 // -Add support for per-channel upper/lower/centre limits (useful if ESCs or motors are not identical)
 
-#include <Servo.h>
 #include "config.h"
 
 //set up servo objects
@@ -28,34 +27,11 @@ void setup() {
   Serial.begin(9600); //pour a bowl of Serial
 }
 
-int pulse_in_and_limit(ReceiverConfig &rx_conf, int last_pos, int max_diff) {
-  int pos = pulseIn(rx_conf.rx_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
-  if (rate_change_limit) {
-    if (pos > last_pos) { 
-      if ((pos - last_pos) > max_diff) {
-        pos = last_pos + max_diff; 
-      } 
-    }
-    if (pos < last_pos) { 
-      if ((last_pos - pos) > max_diff) {
-        pos = last_pos - max_diff; 
-      } 
-    }
-  }
-  //clamp the values to within the useable range
-  if (pos > rx_conf.limit_upper) { 
-    pos = rx_conf.limit_upper; 
-  } 
-  if (pos < rx_conf.limit_lower) { 
-    pos = rx_conf.limit_lower; 
-  }  
-}
-
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
-  int throtpos = pulse_in_and_limit(throttle, throtpos_last, difference);
-  int steerpos = pulse_in_and_limit(steer, steerpos_last, difference);
+  int throtpos = throttle.pulse_in_and_limit(throtpos_last, difference);
+  int steerpos = steer.pulse_in_and_limit(steerpos_last, difference);
   throtpos_last = throtpos;
   steerpos_last = steerpos;
   
