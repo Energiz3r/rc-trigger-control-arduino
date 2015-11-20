@@ -12,6 +12,7 @@ class Receiver {
     bool rate_change_limit;
 
     // Member functions
-	  int pulse_in_and_limit(int last_pos, int max_diff);
+    int pulse_in_and_limit(int last_pos, int max_diff);
+	float upper_percent(int pos);
+	float lower_percent(int pos);
 };
-

@@ -30,8 +30,8 @@ void setup() {
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
-  int throtpos = throttle.pulse_in_and_limit(throtpos_last, difference);
-  int steerpos = steer.pulse_in_and_limit(steerpos_last, difference);
+  const int throtpos = throttle.pulse_in_and_limit(throtpos_last, difference);
+  const int steerpos = steer.pulse_in_and_limit(steerpos_last, difference);
   throtpos_last = throtpos;
   steerpos_last = steerpos;
   
@@ -88,7 +88,7 @@ void loop() {
     {
       
       //find % of throttle applied
-      float throt_percent = (((throtpos - throttle.neutral_upper) / (throttle.limit_upper - throttle.neutral_upper)) * 100);
+      float throt_percent = throttle.upper_percent(throtpos);
       
       //find the output throttle value
       float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
@@ -98,7 +98,7 @@ void loop() {
       {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
-        float steer_percent = (((steerpos - steer.neutral_upper) / (steer.limit_upper - steer.neutral_upper)) * 100);
+        float steer_percent = steer.upper_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -124,7 +124,7 @@ void loop() {
       {
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
-        float steer_percent = (((steer.neutral_lower - steerpos) / (steer.neutral_lower - steer.limit_lower)) * 100);
+        float steer_percent = steer.lower_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -163,7 +163,7 @@ void loop() {
     {
       
       //find % of throttle applied
-      int throt_percent = ((throttle.neutral_lower - throtpos) / (throttle.neutral_lower - throttle.limit_lower)) * 100;
+      int throt_percent = throttle.lower_percent(throtpos);
       
       //find the output throttle value
       float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
@@ -173,7 +173,7 @@ void loop() {
       {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
-        float steer_percent = (((steerpos - steer.neutral_upper) / (steer.limit_upper - steer.neutral_upper)) * 100);
+        float steer_percent = steer.upper_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -199,7 +199,7 @@ void loop() {
       {
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
-        float steer_percent = (((steer.neutral_lower - steerpos) / (steer.neutral_lower - steer.limit_lower)) * 100);
+        float steer_percent = steer.lower_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));

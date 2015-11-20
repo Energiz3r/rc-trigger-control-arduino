@@ -24,3 +24,11 @@ int Receiver::pulse_in_and_limit(int last_pos, int max_diff) {
   }
   return pos;
 }
+
+float Receiver::upper_percent(int pos) {
+  return ((pos - neutral_upper) / (limit_upper - neutral_upper)) * 100;
+}
+
+float Receiver::lower_percent(int pos) {
+  return ((neutral_lower - pos) / (neutral_lower - limit_lower)) * 100;
+}
