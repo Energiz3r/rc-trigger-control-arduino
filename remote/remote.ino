@@ -40,7 +40,7 @@ void loop() {
   int neutral_safety = 0;
   
   //if the conditions for 'connection lost' are met, ie. the outputs from the receiver are within a specific range
-  if (((throtpos > throttle.lostcon_lower) && (throtpos < throttle.lostcon_upper) && (steerpos > steer.lostcon_lower) && (steerpos < steer.lostcon_upper)))
+  if (throttle.is_connection_lost(throtpos) && steer.is_connection_lost(steerpos))
   {
     
     //keep track of how long the connection lost conditions have been met

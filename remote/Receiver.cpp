@@ -32,3 +32,7 @@ float Receiver::upper_percent(int pos) {
 float Receiver::lower_percent(int pos) {
   return ((neutral_lower - pos) / (neutral_lower - limit_lower)) * 100;
 }
+
+bool Receiver::is_connection_lost(int pos) {
+  return (pos > lostcon_lower) && (pos < lostcon_upper);
+}

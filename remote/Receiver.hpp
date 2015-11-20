@@ -15,4 +15,5 @@ class Receiver {
     int pulse_in_and_limit(int last_pos, int max_diff);
 	float upper_percent(int pos);
 	float lower_percent(int pos);
+	bool is_connection_lost(int pos);
 };
