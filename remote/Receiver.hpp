@@ -8,6 +8,9 @@ class Receiver {
     int lostcon_lower;
     bool rate_change_limit;
     int rx_input;
+	int max_diff;
+	//tracks positions for rate change limiting
+	int last_pos = 0;
 	
   public:
     // Member variables, will be private when functions moved into this class
@@ -22,8 +25,9 @@ class Receiver {
 	  int lostcon_upper, 
 	  int lostcon_lower, 
 	  bool rate_change_limit, 
+	  int max_diff,
 	  int rx_input);
-    int pulse_in_and_limit(int last_pos, int max_diff);
+    int update_position();
 	float upper_percent(int pos);
 	float lower_percent(int pos);
 	bool is_connection_lost(int pos);

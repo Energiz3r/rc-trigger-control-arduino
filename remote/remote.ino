@@ -12,9 +12,6 @@
 Servo leftout; //L channel
 Servo rightout; //R channel
 
-//tracks throt/steer positions for rate change limiting
-int throtpos_last = 0;
-int steerpos_last = 0;
 int long tracklostcon = 0; //tracks if the connection is interrupted
 
 void setup() {
@@ -30,10 +27,8 @@ void setup() {
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
-  const int throtpos = throttle.pulse_in_and_limit(throtpos_last, difference);
-  const int steerpos = steer.pulse_in_and_limit(steerpos_last, difference);
-  throtpos_last = throtpos;
-  steerpos_last = steerpos;
+  const int throtpos = throttle.update_position();
+  const int steerpos = steer.update_position();
   
   int left_channel = 0;
   int right_channel = 0;

@@ -48,6 +48,7 @@ Receiver throttle = Receiver(
   1700, //lostcon_upper
   1600, //lostcon_lower
   28, //rx_input: signal wire for receiver throttle (usually channel 2)
+  difference,
   rate_change_limit
 );
 
@@ -61,6 +62,7 @@ Receiver steer = Receiver(
   1200, //lostcon_upper
   1000, //lostcon_lower
   30, //rx_input receiver steering (usually channel 1)
+  difference,
   rate_change_limit
 );
 
