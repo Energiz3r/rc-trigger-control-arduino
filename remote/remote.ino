@@ -24,6 +24,38 @@ void setup() {
   Serial.begin(9600); //pour a bowl of Serial
 }
 
+bool is_connected(int throtpos, int steerpos) {
+  bool connection_ok = true;
+  
+  //if the conditions for 'connection lost' are met, ie. the outputs from the receiver are within a specific range
+  if (throttle.is_connection_lost(throtpos) && steer.is_connection_lost(steerpos)) {
+    //keep track of how long the connection lost conditions have been met
+    if (tracklostcon == 0) {
+      tracklostcon = millis();
+      
+      //debug output
+      if (serial_output == 1) { 
+        Serial.println("Connection seems to be interrupted... "); 
+      }
+    }
+    
+    //if the connection is still interrupted after the allowed time the TX is probably off or out of range
+    if ((millis() - tracklostcon) > lostconwaittime) {
+      //disable normal movement
+      connection_ok = false;
+      
+      //debug output
+      if (serial_output == 1) { 
+        Serial.println("Connection lost!"); 
+      }
+    }
+  } else {
+    //reset lost connection tracking if conditions are normal to prevent stalling unnecessarily
+    tracklostcon = 0;
+  }
+  return connection_ok;
+}
+
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
@@ -32,50 +64,9 @@ void loop() {
   
   int left_channel = 0;
   int right_channel = 0;
-  int neutral_safety = 0;
-  
-  //if the conditions for 'connection lost' are met, ie. the outputs from the receiver are within a specific range
-  if (throttle.is_connection_lost(throtpos) && steer.is_connection_lost(steerpos))
-  {
-    
-    //keep track of how long the connection lost conditions have been met
-    if (tracklostcon == 0)
-    {
-      
-      tracklostcon = millis();
-      
-      //debug output
-      if (serial_output == 1) { Serial.println("Connection seems to be interrupted... "); }
-      
-    }
-    
-    //if the connection is still interrupted after the allowed time the TX is probably off or out of range
-    if ((millis() - tracklostcon) > lostconwaittime)
-    {
-      
-      //set outputs to neutral positions
-      left_channel = outputcentre;
-      right_channel = outputcentre;
-      
-      //disable normal movement
-      neutral_safety = 1;
-      
-      //debug output
-      if (serial_output == 1) { Serial.println("Connection lost!"); }
-    
-    }
-    
-  }
-  else
-  {
-    
-   //reset lost connection tracking if conditions are normal to prevent stalling unnecessarily
-   tracklostcon = 0;
-    
-  }
   
   //only perform normal movements if the lost connection timer hasn't been exceeded
-  if (neutral_safety == 0)
+  if (is_connected(throtpos, steerpos))
   {
     
     //if the throttle position is above the neutral range (forward)
@@ -240,6 +231,10 @@ void loop() {
       
     }
     
+  } else {
+      //set outputs to neutral positions
+      left_channel = outputcentre;
+      right_channel = outputcentre;
   }
   
   //debug output
