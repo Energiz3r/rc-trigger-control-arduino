@@ -21,8 +21,8 @@ void setup() {
   //set up pins
   leftout.attach(esc_left_output); //left channel output
   rightout.attach(esc_right_output); //right channel output
-  pinMode(throttle.rx_input, INPUT); //throttle input
-  pinMode(steer.rx_input, INPUT); //steering input
+  throttle.pin_input(); //throttle input
+  steer.pin_input(); //steering input
 
   Serial.begin(9600); //pour a bowl of Serial
 }

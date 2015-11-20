@@ -1,6 +1,25 @@
 #include "Receiver.hpp"
 #include <Arduino.h>
 
+Receiver::Receiver(float neutral_upper, 
+  float neutral_lower, 
+  float limit_upper, 
+  float limit_lower, 
+  int lostcon_upper, 
+  int lostcon_lower, 
+  bool rate_change_limit, 
+  int rx_input) {
+  
+  this->neutral_upper = neutral_upper; 
+  this->neutral_lower = neutral_lower; 
+  this->limit_upper = limit_upper; 
+  this->limit_lower = limit_lower; 
+  this->lostcon_upper = lostcon_upper; 
+  this->lostcon_lower = lostcon_lower; 
+  this->rate_change_limit = rate_change_limit; 
+  this->rx_input = rx_input;
+}
+
 int Receiver::pulse_in_and_limit(int last_pos, int max_diff) {
   int pos = pulseIn(rx_input, HIGH, 25000); //read the pulse width of the channel. 25000 is more than sufficient sample size for highly responsive I/O
   if (rate_change_limit) {
@@ -35,4 +54,8 @@ float Receiver::lower_percent(int pos) {
 
 bool Receiver::is_connection_lost(int pos) {
   return (pos > lostcon_lower) && (pos < lostcon_upper);
+}
+
+void Receiver::pin_input() {
+  pinMode(rx_input, INPUT);
 }

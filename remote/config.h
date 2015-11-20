@@ -38,29 +38,29 @@ const int esc_left_output = 22; //connect to left ESC signal wire
 const int esc_right_output = 24; //right ESC signal wire
 
 //most ESCs will provide ~6V to the receiver which you can also use to power the arduino. Connect red wire from ESC or receiver to +5V header or barrel connector on arduino
-Receiver throttle = { 
+Receiver throttle = Receiver( 
   //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
-  neutral_upper: 1500, //these values represent the PWM width the receiver outputs while in neutral positions.
-  neutral_lower: 1400, //it fluctuates so we specify a range (upper and lower limits)
-  limit_upper: 1900, //these next values represent the entire range of input
-  limit_lower: 1000, 
+  1500, //neutral_upper: these values represent the PWM width the receiver outputs while in neutral positions.
+  1400, //neutral_lower: it fluctuates so we specify a range (upper and lower limits)
+  1900, //limit_upper: these next values represent the entire range of input
+  1000, //limit_lower
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
-  lostcon_upper: 1700, 
-  lostcon_lower: 1600, 
-  rx_input: 28, //signal wire for receiver throttle (usually channel 2)
-  rate_change_limit: rate_change_limit
-};
+  1700, //lostcon_upper
+  1600, //lostcon_lower
+  28, //rx_input: signal wire for receiver throttle (usually channel 2)
+  rate_change_limit
+);
 
-Receiver steer = {
+Receiver steer = Receiver(
   //these are the values as measured for an HPI RF-40 R/C receiver. use serial_output = 2 to determine the correct values for your receiver
-  neutral_upper: 1550, //if you can't get your bot to stay still with throttle/steering in neutral, widen these ranges
-  neutral_lower: 1400,
-  limit_upper: 1800,
-  limit_lower: 1100, //don't forget to set the values in the next section for when the TX is disconnected
+  1550, //neutral_upper: if you can't get your bot to stay still with throttle/steering in neutral, widen these ranges
+  1400, //neutral_lower
+  1800, //limit_upper
+  1100, //limit_lower: don't forget to set the values in the next section for when the TX is disconnected
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
-  lostcon_upper: 1200,
-  lostcon_lower: 1000,
-  rx_input: 30, //receiver steering (usually channel 1)
-  rate_change_limit: rate_change_limit
-};
+  1200, //lostcon_upper
+  1000, //lostcon_lower
+  30, //rx_input receiver steering (usually channel 1)
+  rate_change_limit
+);
 
