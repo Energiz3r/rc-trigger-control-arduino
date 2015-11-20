@@ -12,75 +12,61 @@
 Servo leftout; //L channel
 Servo rightout; //R channel
 
-//tracks throt/steer positions for rate change limiting
-int throtpos_last = 0;
-int steerpos_last = 0;
 int long tracklostcon = 0; //tracks if the connection is interrupted
 
 void setup() {
   //set up pins
   leftout.attach(esc_left_output); //left channel output
   rightout.attach(esc_right_output); //right channel output
-  pinMode(throttle.rx_input, INPUT); //throttle input
-  pinMode(steer.rx_input, INPUT); //steering input
+  throttle.pin_input(); //throttle input
+  steer.pin_input(); //steering input
 
   Serial.begin(9600); //pour a bowl of Serial
+}
+
+bool is_connected(int throtpos, int steerpos) {
+  bool connection_ok = true;
+  
+  //if the conditions for 'connection lost' are met, ie. the outputs from the receiver are within a specific range
+  if (throttle.is_connection_lost(throtpos) && steer.is_connection_lost(steerpos)) {
+    //keep track of how long the connection lost conditions have been met
+    if (tracklostcon == 0) {
+      tracklostcon = millis();
+      
+      //debug output
+      if (serial_output == 1) { 
+        Serial.println("Connection seems to be interrupted... "); 
+      }
+    }
+    
+    //if the connection is still interrupted after the allowed time the TX is probably off or out of range
+    if ((millis() - tracklostcon) > lostconwaittime) {
+      //disable normal movement
+      connection_ok = false;
+      
+      //debug output
+      if (serial_output == 1) { 
+        Serial.println("Connection lost!"); 
+      }
+    }
+  } else {
+    //reset lost connection tracking if conditions are normal to prevent stalling unnecessarily
+    tracklostcon = 0;
+  }
+  return connection_ok;
 }
 
 void loop() {
   
   //stores the current positions for the steering and throttle PWM values
-  int throtpos = throttle.pulse_in_and_limit(throtpos_last, difference);
-  int steerpos = steer.pulse_in_and_limit(steerpos_last, difference);
-  throtpos_last = throtpos;
-  steerpos_last = steerpos;
+  const int throtpos = throttle.update_position();
+  const int steerpos = steer.update_position();
   
   int left_channel = 0;
   int right_channel = 0;
-  int neutral_safety = 0;
-  
-  //if the conditions for 'connection lost' are met, ie. the outputs from the receiver are within a specific range
-  if (((throtpos > throttle.lostcon_lower) && (throtpos < throttle.lostcon_upper) && (steerpos > steer.lostcon_lower) && (steerpos < steer.lostcon_upper)))
-  {
-    
-    //keep track of how long the connection lost conditions have been met
-    if (tracklostcon == 0)
-    {
-      
-      tracklostcon = millis();
-      
-      //debug output
-      if (serial_output == 1) { Serial.println("Connection seems to be interrupted... "); }
-      
-    }
-    
-    //if the connection is still interrupted after the allowed time the TX is probably off or out of range
-    if ((millis() - tracklostcon) > lostconwaittime)
-    {
-      
-      //set outputs to neutral positions
-      left_channel = outputcentre;
-      right_channel = outputcentre;
-      
-      //disable normal movement
-      neutral_safety = 1;
-      
-      //debug output
-      if (serial_output == 1) { Serial.println("Connection lost!"); }
-    
-    }
-    
-  }
-  else
-  {
-    
-   //reset lost connection tracking if conditions are normal to prevent stalling unnecessarily
-   tracklostcon = 0;
-    
-  }
   
   //only perform normal movements if the lost connection timer hasn't been exceeded
-  if (neutral_safety == 0)
+  if (is_connected(throtpos, steerpos))
   {
     
     //if the throttle position is above the neutral range (forward)
@@ -88,7 +74,7 @@ void loop() {
     {
       
       //find % of throttle applied
-      float throt_percent = (((throtpos - throttle.neutral_upper) / (throttle.limit_upper - throttle.neutral_upper)) * 100);
+      float throt_percent = throttle.upper_percent(throtpos);
       
       //find the output throttle value
       float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
@@ -98,7 +84,7 @@ void loop() {
       {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
-        float steer_percent = (((steerpos - steer.neutral_upper) / (steer.limit_upper - steer.neutral_upper)) * 100);
+        float steer_percent = steer.upper_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -124,7 +110,7 @@ void loop() {
       {
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
-        float steer_percent = (((steer.neutral_lower - steerpos) / (steer.neutral_lower - steer.limit_lower)) * 100);
+        float steer_percent = steer.lower_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -163,7 +149,7 @@ void loop() {
     {
       
       //find % of throttle applied
-      int throt_percent = ((throttle.neutral_lower - throtpos) / (throttle.neutral_lower - throttle.limit_lower)) * 100;
+      int throt_percent = throttle.lower_percent(throtpos);
       
       //find the output throttle value
       float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
@@ -173,7 +159,7 @@ void loop() {
       {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
-        float steer_percent = (((steerpos - steer.neutral_upper) / (steer.limit_upper - steer.neutral_upper)) * 100);
+        float steer_percent = steer.upper_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -199,7 +185,7 @@ void loop() {
       {
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
-        float steer_percent = (((steer.neutral_lower - steerpos) / (steer.neutral_lower - steer.limit_lower)) * 100);
+        float steer_percent = steer.lower_percent(steerpos);
         
         //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
@@ -245,6 +231,10 @@ void loop() {
       
     }
     
+  } else {
+      //set outputs to neutral positions
+      left_channel = outputcentre;
+      right_channel = outputcentre;
   }
   
   //debug output
