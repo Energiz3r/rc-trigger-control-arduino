@@ -33,42 +33,30 @@ void ServoController::move(int left_move, int right_move, int throtpos, int stee
   }
 }
 
-void ServoController::move(int left_move, int right_move, int throtpos, int steerpos, char* message, int value) {
+void ServoController::move(int left_move, int right_move, int throtpos, int steerpos, char* message, int value, bool swap) {
   //debug output
   if (debug_level == 1) { 
     Serial.println(message + String(value)); 
   }
-  move(left_move, right_move, throtpos, steerpos);
+  if (swap) {
+    move(right_move, left_move, throtpos, steerpos);
+  } else {
+    move(left_move, right_move, throtpos, steerpos);
+  }
 }
 
 void ServoController::steer_forward_left(int left_move, int right_move, int throtpos, int steerpos, int newoutput) {
-  if (steer_forward_swap) {
-    move(right_move, left_move, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput);  
-  } else {
-    move(left_move, right_move, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput);  
-  }
+  move(left_move, right_move, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_forward_right(int left_move, int right_move, int throtpos, int steerpos, int newoutput) {
-  if (steer_forward_swap) {
-    move(right_move, left_move, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput);  
-  } else {
-    move(left_move, right_move, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput);  
-  }
+  move(left_move, right_move, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_backward_left(int left_move, int right_move, int throtpos, int steerpos, int newoutput) {
-  if (steer_back_swap) {
-    move(right_move, left_move, throtpos, steerpos, "(Reversing) Left channel servo: ", newoutput);  
-  } else {
-    move(left_move, right_move, throtpos, steerpos, "(Reversing) Left channel servo: ", newoutput);  
-  }
+  move(left_move, right_move, throtpos, steerpos, "(Reversing) Left channel servo: ", newoutput, steer_back_swap);
 }
 
 void ServoController::steer_backward_right(int left_move, int right_move, int throtpos, int steerpos, int newoutput) {
-  if (steer_back_swap) {
-    move(right_move, left_move, throtpos, steerpos, "(Reversing) Right channel servo: ", newoutput);  
-  } else {
-    move(left_move, right_move, throtpos, steerpos, "(Reversing) Right channel servo: ", newoutput);  
-  }
+  move(left_move, right_move, throtpos, steerpos, "(Reversing) Right channel servo: ", newoutput, steer_back_swap);
 }

@@ -97,7 +97,7 @@ void loop() {
       } else { //if steering is neutral
         
         int output = outputcentre + output_throt;
-        servos.move(output, output, throtpos, steerpos, "(Forward) Both servos: ", output);  
+        servos.move(output, output, throtpos, steerpos, "(Forward) Both servos: ", output, false);  
       }
       
     } else if (throtpos < throttle.neutral_lower) { //if the throttle is below neutral range (reverse)
@@ -134,10 +134,10 @@ void loop() {
       } else { //if steering is neutral
         
         int output = outputcentre - output_throt;
-        servos.move(output, output, throtpos, steerpos, "(Reversing) Both servos: ", output);
+        servos.move(output, output, throtpos, steerpos, "(Reversing) Both servos: ", output, false);
       }
     } else { //neutral / idle
-      servos.move(outputcentre, outputcentre, throtpos, steerpos, "(Neutral) Both servos: ", outputcentre);  
+      servos.move(outputcentre, outputcentre, throtpos, steerpos, "(Neutral) Both servos: ", outputcentre, false);  
     }
   } else {
     //set outputs to neutral positions
