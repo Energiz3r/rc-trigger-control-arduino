@@ -1,11 +1,8 @@
-#include <Servo.h>
 #include "Receiver.hpp"
+#include "ServoController.hpp"
 
 //serial output. 0 = off, 1 = status/output display, 2 = show PWM values (for calibrating receiver)
 const int serial_output = 2;
-
-//swaps left/right output channels
-const bool channel_swap = false;
 
 //reverse steering direction while moving forward
 const bool steering_swap = false;
@@ -34,8 +31,11 @@ const float steering_sensitivity = 2; //default value is 2
 const int lostconwaittime = 500; //time (in ms) to wait before setting outputs to neutral positions if receiver is outputting these ranges continuously
 
 //configure digital pins on arduino
-const int esc_left_output = 22; //connect to left ESC signal wire
-const int esc_right_output = 24; //right ESC signal wire
+ServoController servos = ServoController(
+  22,   //esc_left: connect to left ESC signal wire
+  24,   //esc_right: right ESC signal wire
+  false //channel_swap: swaps left/right output channels
+);
 
 //most ESCs will provide ~6V to the receiver which you can also use to power the arduino. Connect red wire from ESC or receiver to +5V header or barrel connector on arduino
 Receiver throttle = Receiver( 

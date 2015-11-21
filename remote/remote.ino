@@ -8,16 +8,11 @@
 
 #include "config.h"
 
-//set up servo objects
-Servo leftout; //L channel
-Servo rightout; //R channel
-
 int long tracklostcon = 0; //tracks if the connection is interrupted
 
 void setup() {
   //set up pins
-  leftout.attach(esc_left_output); //left channel output
-  rightout.attach(esc_right_output); //right channel output
+  servos.attach();
   throttle.pin_input(); //throttle input
   steer.pin_input(); //steering input
 
@@ -239,25 +234,8 @@ void loop() {
   
   //debug output
   if (serial_output == 2) { Serial.println("throttle position: " + String(throtpos) + " steering position: " + String(steerpos)); }
-  
-  //if the channels are swapped
-  if (channel_swap)
-  {
-    
-    //set the outputs to match the movements calculated above
-    leftout.write(right_channel);
-    rightout.write(left_channel);
-    
-  }
-  else
-  {
-  
-    //set the outputs to match the movements calculated above
-    leftout.write(left_channel);
-    rightout.write(right_channel);
-    
-  }
-  
+
+  servos.move(left_channel, right_channel);  
 }
 
 //that's a wrap. go get coffee
