@@ -45,6 +45,22 @@ void ServoController::move(int left_move, int right_move, int throtpos, int stee
   }
 }
 
+void ServoController::steer_forward(int forward_move, int throtpos, int steerpos) {
+  move(forward_move, forward_move, throtpos, steerpos, "(Forward) Both servos: ", forward_move, false);  
+}
+
+void ServoController::steer_backward(int backward_move, int throtpos, int steerpos) {
+  move(backward_move, backward_move, throtpos, steerpos, "(Reversing) Both servos: ", backward_move, false);
+}
+
+void ServoController::steer_idle(int centre, int throtpos, int steerpos, bool log_movement) {
+  if (log_movement) {
+    move(centre, centre, throtpos, steerpos, "(Neutral) Both servos: ", centre, false);  
+  } else {
+    move(centre, centre, throtpos, steerpos);  
+  }
+}
+
 void ServoController::steer_forward_left(int left_move, int right_move, int throtpos, int steerpos, int newoutput) {
   move(left_move, right_move, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput, steer_forward_swap);
 }
