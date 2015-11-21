@@ -8,16 +8,11 @@
 
 #include "config.h"
 
-//set up servo objects
-Servo leftout; //L channel
-Servo rightout; //R channel
-
 int long tracklostcon = 0; //tracks if the connection is interrupted
 
 void setup() {
   //set up pins
-  leftout.attach(esc_left_output); //left channel output
-  rightout.attach(esc_right_output); //right channel output
+  servos.attach();
   throttle.pin_input(); //throttle input
   steer.pin_input(); //steering input
 
@@ -57,7 +52,6 @@ bool is_connected(int throtpos, int steerpos) {
 }
 
 void loop() {
-  
   //stores the current positions for the steering and throttle PWM values
   const int throtpos = throttle.update_position();
   const int steerpos = steer.update_position();
@@ -66,12 +60,10 @@ void loop() {
   int right_channel = 0;
   
   //only perform normal movements if the lost connection timer hasn't been exceeded
-  if (is_connected(throtpos, steerpos))
-  {
+  if (is_connected(throtpos, steerpos)) {
     
     //if the throttle position is above the neutral range (forward)
-    if (throtpos > throttle.neutral_upper)
-    {
+    if (throtpos > throttle.neutral_upper) {
       
       //find % of throttle applied
       float throt_percent = throttle.upper_percent(throtpos);
@@ -80,8 +72,7 @@ void loop() {
       float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper)
-      {
+      if (steerpos > steer.neutral_upper) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -90,25 +81,10 @@ void loop() {
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre + output_throt;
-        if (steering_swap)
-        {
-          left_channel = newoutput; //set the output
-          right_channel = regoutput;
-        }
-        else
-        {
-          right_channel = newoutput;
-          left_channel = regoutput;
-        }
+        servos.steer_forward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
         
-        //debug output
-        if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
-        
-      }
-      //if steering right
-      else if (steerpos < steer.neutral_lower)
-      {
-        
+      } else if (steerpos < steer.neutral_lower) { //if steering right
+
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
         
@@ -116,37 +92,15 @@ void loop() {
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre + output_throt;
-        if (steering_swap)
-        {
-          right_channel = newoutput; //set the output
-          left_channel = regoutput;
-        }
-        else
-        {
-          left_channel = newoutput;
-          right_channel = regoutput;
-        }
+        servos.steer_forward_right(newoutput, regoutput, throtpos, steerpos, newoutput);
+
+      } else { //if steering is neutral
         
-        //debug output
-        if (serial_output == 1) { Serial.println("(Forward) Right channel servo: " + String(newoutput)); }
-        
-      }
-      else //if steering is neutral
-      {
-      
         int output = outputcentre + output_throt;
-        left_channel = output;
-        right_channel = output;
-        
-        //debug output
-        if (serial_output == 1) { Serial.println("(Forward) Both servos: " + String(output)); }
-      
+        servos.steer_forward(output, throtpos, steerpos);
       }
       
-    }
-    //if the throttle is below neutral range (reverse)
-    else if (throtpos < throttle.neutral_lower)
-    {
+    } else if (throtpos < throttle.neutral_lower) { //if the throttle is below neutral range (reverse)
       
       //find % of throttle applied
       int throt_percent = throttle.lower_percent(throtpos);
@@ -155,8 +109,7 @@ void loop() {
       float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper)
-      {
+      if (steerpos > steer.neutral_upper) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -165,24 +118,9 @@ void loop() {
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre - output_throt;
-        if (steering_reverse_swap)
-        {
-          left_channel = newoutput; //set the output
-          right_channel = regoutput;
-        }
-        else
-        {
-          right_channel = newoutput;
-          left_channel = regoutput;
-        }
-        
-        //debug output
-        if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
-        
-      }
-      //if steering right
-      else if (steerpos < steer.neutral_lower)
-      {
+        servos.steer_backward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
+
+      } else if (steerpos < steer.neutral_lower) { //if steering right
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
@@ -191,73 +129,20 @@ void loop() {
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre - output_throt;
-        if (steering_reverse_swap)
-        {
-          right_channel = newoutput; //set the output
-          left_channel = regoutput;
-        }
-        else
-        {
-          left_channel = newoutput;
-          right_channel = regoutput;
-        }
+        servos.steer_backward_right(newoutput, regoutput, throtpos, steerpos, newoutput);
         
-        //debug output
-        if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
+      } else { //if steering is neutral
         
-      }
-      else //if steering is neutral
-      {
-      
         int output = outputcentre - output_throt;
-        left_channel = output;
-        right_channel = output;
-        
-        //debug output
-        if (serial_output == 1) { Serial.println("(Reversing) Both servos: " + String(output)); }
-      
+        servos.steer_backward(output, throtpos, steerpos);
       }
-      
+    } else { //neutral / idle
+      servos.steer_idle(outputcentre, throtpos, steerpos, true);
     }
-    else //neutral / idle
-    {
-      
-      int output = outputcentre;
-      left_channel = output;
-      right_channel = output;
-      
-      //debug output
-      if (serial_output == 1) { Serial.println("(Neutral) Both servos: " + String(output)); }
-      
-    }
-    
   } else {
-      //set outputs to neutral positions
-      left_channel = outputcentre;
-      right_channel = outputcentre;
+    //set outputs to neutral positions
+    servos.steer_idle(outputcentre, throtpos, steerpos, false);
   }
-  
-  //debug output
-  if (serial_output == 2) { Serial.println("throttle position: " + String(throtpos) + " steering position: " + String(steerpos)); }
-  
-  //if the channels are swapped
-  if (channel_swap)
-  {
-    
-    //set the outputs to match the movements calculated above
-    leftout.write(right_channel);
-    rightout.write(left_channel);
-    
-  }
-  else
-  {
-  
-    //set the outputs to match the movements calculated above
-    leftout.write(left_channel);
-    rightout.write(right_channel);
-    
-  }
-  
 }
 
 //that's a wrap. go get coffee
