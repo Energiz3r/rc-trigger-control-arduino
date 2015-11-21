@@ -4,11 +4,6 @@
 //serial output. 0 = off, 1 = status/output display, 2 = show PWM values (for calibrating receiver)
 const int serial_output = 2;
 
-//reverse steering direction while moving forward
-const bool steering_swap = false;
-//reverse steering direction while moving in reverse
-const bool steering_reverse_swap = false;
-
 //the maximum difference (in PWM value) each cycle to allow the input to change by. This prevents spikes in PWM input from instantly stopping or changing wheel direction (smoothes stop/go)
 const int difference = 50;
 //enable or disable this setting
@@ -35,6 +30,8 @@ ServoController servos = ServoController(
   22,    //esc_left: connect to left ESC signal wire
   24,    //esc_right: right ESC signal wire
   false, //channel_swap: swaps left/right output channels
+  false, //steer_forward_swap: reverse steering direction while moving forward
+  false, //steer_back_swap: reverse steering direction while moving in reverse
   serial_output
 );
 

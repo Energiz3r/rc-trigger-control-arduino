@@ -52,7 +52,6 @@ bool is_connected(int throtpos, int steerpos) {
 }
 
 void loop() {
-  
   //stores the current positions for the steering and throttle PWM values
   const int throtpos = throttle.update_position();
   const int steerpos = steer.update_position();
@@ -61,12 +60,10 @@ void loop() {
   int right_channel = 0;
   
   //only perform normal movements if the lost connection timer hasn't been exceeded
-  if (is_connected(throtpos, steerpos))
-  {
+  if (is_connected(throtpos, steerpos)) {
     
     //if the throttle position is above the neutral range (forward)
-    if (throtpos > throttle.neutral_upper)
-    {
+    if (throtpos > throttle.neutral_upper) {
       
       //find % of throttle applied
       float throt_percent = throttle.upper_percent(throtpos);
@@ -75,8 +72,7 @@ void loop() {
       float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper)
-      {
+      if (steerpos > steer.neutral_upper) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -85,23 +81,10 @@ void loop() {
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre + output_throt;
-        if (steering_swap)
-        {
-          left_channel = newoutput; //set the output
-          right_channel = regoutput;
-        }
-        else
-        {
-          right_channel = newoutput;
-          left_channel = regoutput;
-        }
+        servos.steer_forward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
         
-        servos.move(left_channel, right_channel, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput);  
-      }
-      //if steering right
-      else if (steerpos < steer.neutral_lower)
-      {
-        
+      } else if (steerpos < steer.neutral_lower) { //if steering right
+
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
         
@@ -109,28 +92,16 @@ void loop() {
         steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre + output_throt;
-        if (steering_swap)
-        {
-          right_channel = newoutput; //set the output
-          left_channel = regoutput;
-        }
-        else
-        {
-          left_channel = newoutput;
-          right_channel = regoutput;
-        }
+        servos.steer_forward_right(newoutput, regoutput, throtpos, steerpos, newoutput);
+
+      } else { //if steering is neutral
         
-        servos.move(left_channel, right_channel, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput);  
-      }
-      else //if steering is neutral
-      {
         int output = outputcentre + output_throt;
         servos.move(output, output, throtpos, steerpos, "(Forward) Both servos: ", output);  
       }
-    }
-    //if the throttle is below neutral range (reverse)
-    else if (throtpos < throttle.neutral_lower)
-    {
+      
+    } else if (throtpos < throttle.neutral_lower) { //if the throttle is below neutral range (reverse)
+      
       //find % of throttle applied
       int throt_percent = throttle.lower_percent(throtpos);
       
@@ -138,8 +109,7 @@ void loop() {
       float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper)
-      {
+      if (steerpos > steer.neutral_upper) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -148,22 +118,9 @@ void loop() {
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre - output_throt;
-        if (steering_reverse_swap)
-        {
-          left_channel = newoutput; //set the output
-          right_channel = regoutput;
-        }
-        else
-        {
-          right_channel = newoutput;
-          left_channel = regoutput;
-        }
-        
-        servos.move(left_channel, right_channel, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput);  
-      }
-      //if steering right
-      else if (steerpos < steer.neutral_lower)
-      {
+        servos.steer_backward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
+
+      } else if (steerpos < steer.neutral_lower) { //if steering right
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
@@ -172,30 +129,16 @@ void loop() {
         steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
         int newoutput = steer_percent; //convert to int
         int regoutput = outputcentre - output_throt;
-        if (steering_reverse_swap)
-        {
-          right_channel = newoutput; //set the output
-          left_channel = regoutput;
-        }
-        else
-        {
-          left_channel = newoutput;
-          right_channel = regoutput;
-        }
+        servos.steer_backward_right(newoutput, regoutput, throtpos, steerpos, newoutput);
         
-        servos.move(left_channel, right_channel, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput);  
-      }
-      else //if steering is neutral
-      {
+      } else { //if steering is neutral
+        
         int output = outputcentre - output_throt;
         servos.move(output, output, throtpos, steerpos, "(Reversing) Both servos: ", output);
       }
-    }
-    else //neutral / idle
-    {
+    } else { //neutral / idle
       servos.move(outputcentre, outputcentre, throtpos, steerpos, "(Neutral) Both servos: ", outputcentre);  
     }
-    
   } else {
     //set outputs to neutral positions
     servos.move(outputcentre, outputcentre, throtpos, steerpos);  
