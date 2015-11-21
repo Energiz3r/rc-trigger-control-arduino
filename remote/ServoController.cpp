@@ -30,3 +30,11 @@ void ServoController::move(int left_move, int right_move, int throtpos, int stee
     right_servo.write(right_move);
   }
 }
+
+void ServoController::move(int left_move, int right_move, int throtpos, int steerpos, char* message, int value) {
+  //debug output
+  if (debug_level == 1) { 
+    Serial.println(message + String(value)); 
+  }
+  move(left_move, right_move, throtpos, steerpos);
+}
