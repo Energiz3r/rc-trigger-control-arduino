@@ -98,7 +98,7 @@ void loop() {
         
         //debug output
         if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
-        
+        servos.move(left_channel, right_channel, throtpos, steerpos);  
       }
       //if steering right
       else if (steerpos < steer.neutral_lower)
@@ -124,25 +124,20 @@ void loop() {
         
         //debug output
         if (serial_output == 1) { Serial.println("(Forward) Right channel servo: " + String(newoutput)); }
-        
+        servos.move(left_channel, right_channel, throtpos, steerpos);  
       }
       else //if steering is neutral
       {
-      
         int output = outputcentre + output_throt;
-        left_channel = output;
-        right_channel = output;
         
         //debug output
         if (serial_output == 1) { Serial.println("(Forward) Both servos: " + String(output)); }
-      
+        servos.move(output, output, throtpos, steerpos);  
       }
-      
     }
     //if the throttle is below neutral range (reverse)
     else if (throtpos < throttle.neutral_lower)
     {
-      
       //find % of throttle applied
       int throt_percent = throttle.lower_percent(throtpos);
       
@@ -173,7 +168,7 @@ void loop() {
         
         //debug output
         if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
-        
+        servos.move(left_channel, right_channel, throtpos, steerpos);  
       }
       //if steering right
       else if (steerpos < steer.neutral_lower)
@@ -199,43 +194,30 @@ void loop() {
         
         //debug output
         if (serial_output == 1) { Serial.println("(Forward) Left channel servo: " + String(newoutput)); }
-        
+        servos.move(left_channel, right_channel, throtpos, steerpos);  
       }
       else //if steering is neutral
       {
-      
         int output = outputcentre - output_throt;
-        left_channel = output;
-        right_channel = output;
         
         //debug output
         if (serial_output == 1) { Serial.println("(Reversing) Both servos: " + String(output)); }
-      
+        servos.move(output, output, throtpos, steerpos);
       }
-      
     }
     else //neutral / idle
     {
-      
       int output = outputcentre;
-      left_channel = output;
-      right_channel = output;
       
       //debug output
       if (serial_output == 1) { Serial.println("(Neutral) Both servos: " + String(output)); }
-      
+      servos.move(output, output, throtpos, steerpos);  
     }
     
   } else {
       //set outputs to neutral positions
-      left_channel = outputcentre;
-      right_channel = outputcentre;
+      servos.move(outputcentre, outputcentre, throtpos, steerpos);  
   }
-  
-  //debug output
-  if (serial_output == 2) { Serial.println("throttle position: " + String(throtpos) + " steering position: " + String(steerpos)); }
-
-  servos.move(left_channel, right_channel);  
 }
 
 //that's a wrap. go get coffee

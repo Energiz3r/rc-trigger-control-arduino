@@ -32,9 +32,10 @@ const int lostconwaittime = 500; //time (in ms) to wait before setting outputs t
 
 //configure digital pins on arduino
 ServoController servos = ServoController(
-  22,   //esc_left: connect to left ESC signal wire
-  24,   //esc_right: right ESC signal wire
-  false //channel_swap: swaps left/right output channels
+  22,    //esc_left: connect to left ESC signal wire
+  24,    //esc_right: right ESC signal wire
+  false, //channel_swap: swaps left/right output channels
+  serial_output
 );
 
 //most ESCs will provide ~6V to the receiver which you can also use to power the arduino. Connect red wire from ESC or receiver to +5V header or barrel connector on arduino

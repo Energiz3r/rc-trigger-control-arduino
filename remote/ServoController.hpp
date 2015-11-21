@@ -7,9 +7,10 @@ class ServoController {
     int esc_left;
     int esc_right;
 	bool channel_swap;
+	int debug_level;
   
   public:
-    ServoController(int esc_left, int esc_right, bool channel_swap);
+    ServoController(int esc_left, int esc_right, bool channel_swap, int debug_level);
     void attach();
-    void move(int left_move, int right_move);
+    void move(int left_move, int right_move, int throtpos, int steerpos);
 };
