@@ -51,19 +51,27 @@ void ServoController::move(int left_move, int right_move, int throtpos, int stee
   }
 }
 
+float ServoController::calc_forward_throt(float throt_percent) {
+  return ((outputmax - outputcentre) / 100) * throt_percent;
+}
+
+float ServoController::calc_backward_throt(float throt_percent) {
+  return ((outputcentre - outputmin) / 100) * throt_percent;
+}
+
+float ServoController::calc_steering_size(float output_throt, float steer_percent) {
+  return steering_sensitivity * ((output_throt / 100) * steer_percent);
+}
+
 void ServoController::steer_forward(int throtpos, int steerpos, float throt_percent) {
   //find the output throttle value
-  float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
-  int output = outputcentre + output_throt;
-
+  int output = outputcentre + calc_forward_throt(throt_percent);
   move(output, output, throtpos, steerpos, "(Forward) Both servos: ", output, false);  
 }
 
 void ServoController::steer_backward(int throtpos, int steerpos, float throt_percent) {
   //find the output throttle value
-  float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
-  int output = outputcentre - output_throt;
-		
+  int output = outputcentre - calc_backward_throt(throt_percent);
   move(output, output, throtpos, steerpos, "(Reversing) Both servos: ", output, false);
 }
 
@@ -77,48 +85,40 @@ void ServoController::steer_idle(int throtpos, int steerpos, bool log_movement) 
 
 void ServoController::steer_forward_left(int throtpos, int steerpos, float throt_percent, float steer_percent) {
   //find the output throttle value
-  float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
-
+  float output_throt = calc_forward_throt(throt_percent);
+  float regoutput = outputcentre + output_throt;
   //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
-  steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
-  int newoutput = steer_percent; //convert to int
-  int regoutput = outputcentre + output_throt;
+  float newoutput = regoutput - calc_steering_size(output_throt, steer_percent);
 
   move(regoutput, newoutput, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_forward_right(int throtpos, int steerpos, float throt_percent, float steer_percent) {
   //find the output throttle value
-  float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
-        
+  float output_throt = calc_forward_throt(throt_percent);
+  float regoutput = outputcentre + output_throt;
   //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
-  steer_percent = outputcentre + output_throt - (steering_sensitivity * ((output_throt / 100) * steer_percent));
-  int newoutput = steer_percent; //convert to int
-  int regoutput = outputcentre + output_throt;
+  float newoutput = regoutput - calc_steering_size(output_throt, steer_percent);
 
   move(newoutput, regoutput, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_backward_left(int throtpos, int steerpos, float throt_percent, float steer_percent) {
   //find the output throttle value
-  float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
-        
+  float output_throt = calc_backward_throt(throt_percent);
+  float regoutput = outputcentre - output_throt;
   //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
-  steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
-  int newoutput = steer_percent; //convert to int
-  int regoutput = outputcentre - output_throt;
+  float newoutput = regoutput + calc_steering_size(output_throt, steer_percent);
 
   move(regoutput, newoutput, throtpos, steerpos, "(Reversing) Left channel servo: ", newoutput, steer_back_swap);
 }
 
 void ServoController::steer_backward_right(int throtpos, int steerpos, float throt_percent, float steer_percent) {
   //find the output throttle value
-  float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
-        
+  float output_throt = calc_backward_throt(throt_percent);
+  float regoutput = outputcentre - output_throt;
   //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
-  steer_percent = outputcentre - output_throt + (steering_sensitivity * ((output_throt / 100) * steer_percent));
-  int newoutput = steer_percent; //convert to int
-  int regoutput = outputcentre - output_throt;
+  float newoutput = regoutput + calc_steering_size(output_throt, steer_percent);
 
   move(newoutput, regoutput, throtpos, steerpos, "(Reversing) Right channel servo: ", newoutput, steer_back_swap);
 }
