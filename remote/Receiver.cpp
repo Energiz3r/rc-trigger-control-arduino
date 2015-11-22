@@ -62,3 +62,19 @@ bool Receiver::is_connection_lost(int pos) {
 void Receiver::pin_input() {
   pinMode(rx_input, INPUT);
 }
+
+bool Receiver::is_forward(int pos) {
+  return pos > neutral_upper;
+}
+
+bool Receiver::is_backward(int pos) {
+  return pos < neutral_lower;
+}
+
+bool Receiver::is_left(int pos) {
+  return pos > neutral_upper;
+}
+
+bool Receiver::is_right(int pos) {
+  return pos < neutral_lower;
+}

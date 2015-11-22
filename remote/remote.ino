@@ -63,7 +63,7 @@ void loop() {
   if (!check_lost_con || is_connected(throtpos, steerpos)) {
     
     //if the throttle position is above the neutral range (forward)
-    if (throtpos > throttle.neutral_upper) {
+    if (throttle.is_forward(throtpos)) {
       
       //find % of throttle applied
       float throt_percent = throttle.upper_percent(throtpos);
@@ -72,7 +72,7 @@ void loop() {
       float output_throt = ((outputmax - outputcentre) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper) {
+      if (steer.is_left(steerpos)) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -83,7 +83,7 @@ void loop() {
         int regoutput = outputcentre + output_throt;
         servos.steer_forward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
         
-      } else if (steerpos < steer.neutral_lower) { //if steering right
+      } else if (steer.is_right(steerpos)) { //if steering right
 
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
@@ -100,7 +100,7 @@ void loop() {
         servos.steer_forward(output, throtpos, steerpos);
       }
       
-    } else if (throtpos < throttle.neutral_lower) { //if the throttle is below neutral range (reverse)
+    } else if (throttle.is_backward(throtpos)) { //if the throttle is below neutral range (reverse)
       
       //find % of throttle applied
       int throt_percent = throttle.lower_percent(throtpos);
@@ -109,7 +109,7 @@ void loop() {
       float output_throt = ((outputcentre - outputmin) / 100) * throt_percent;
       
       //if steering left
-      if (steerpos > steer.neutral_upper) {
+      if (steer.is_left(steerpos)) {
         
         //find % of 'steering left' applied (full left is 100%, centre is 0%)
         float steer_percent = steer.upper_percent(steerpos);
@@ -120,7 +120,7 @@ void loop() {
         int regoutput = outputcentre - output_throt;
         servos.steer_backward_left(regoutput, newoutput, throtpos, steerpos, newoutput);
 
-      } else if (steerpos < steer.neutral_lower) { //if steering right
+      } else if (steer.is_right(steerpos)) { //if steering right
         
         //find % of 'steering right' applied (full right is 100%, centre is 0%)
         float steer_percent = steer.lower_percent(steerpos);
