@@ -4,19 +4,17 @@ class Receiver {
     // Member variables
     float limit_upper;
     float limit_lower;
+    float neutral_upper;
+    float neutral_lower;
     int lostcon_upper;
     int lostcon_lower;
     bool rate_change_limit;
     int rx_input;
-	int max_diff;
+    int max_diff;
 	//tracks positions for rate change limiting
-	int last_pos = 0;
+    int last_pos = 0;
 	
   public:
-    // Member variables, will be private when functions moved into this class
-    float neutral_upper;
-    float neutral_lower;
-
     // Member functions
 	Receiver(float neutral_upper, 
 	  float neutral_lower, 
@@ -28,8 +26,12 @@ class Receiver {
 	  int max_diff,
 	  int rx_input);
     int update_position();
-	float upper_percent(int pos);
-	float lower_percent(int pos);
-	bool is_connection_lost(int pos);
-	void pin_input();
+    float upper_percent(int pos);
+    float lower_percent(int pos);
+    bool is_connection_lost(int pos);
+    void pin_input();
+    bool is_forward(int pos);
+    bool is_backward(int pos);
+    bool is_left(int pos);
+    bool is_right(int pos);
 };

@@ -9,21 +9,11 @@ const int difference = 50;
 //enable or disable this setting
 const bool rate_change_limit = true;
 
-//this value alters the neutral position and upper/lower limits of the ESC output range
-const float outputcentre = 90; //limits are usually 0-180 degrees where 90 is neutral for an ESC. adjust if bot moves while throttle is neutral
-const float outputmax = 130; //the upper/lower values shouldn't need to be changed unless your ESC is strange
-const float outputmin = 40; //I am using 130 & 40 as the ESC cuts out when the full range is used. defaults = 90, 180, 0
-
-//alter this to change how the wheels on the turning side will behave
-//a setting of 2 will set the turning side to full reverse when steering is at full lock (allows the bot to turn on the spot)
-//a setting of 1 won't reverse the wheels on the turning side, only stop them (bot will turn in an arc)
-//supports float values between 0 and 2
-const float steering_sensitivity = 2; //default value is 2
-
 //this value alters the sensitivity of the safety cut off (when receiver loses connection to transmitter). you shouldn't need to change this
 //this works by detecting when steering and throttle are both within a certain range - the values the receiver outputs while the transmitter is turned off
 //your receiver may behave differently - if that's the case you can ignore this setting.
 const int lostconwaittime = 500; //time (in ms) to wait before setting outputs to neutral positions if receiver is outputting these ranges continuously
+const bool check_lost_con = true; // set to false to disable lost connection checking
 
 //configure digital pins on arduino
 ServoController servos = ServoController(
@@ -32,6 +22,15 @@ ServoController servos = ServoController(
   false, //channel_swap: swaps left/right output channels
   false, //steer_forward_swap: reverse steering direction while moving forward
   false, //steer_back_swap: reverse steering direction while moving in reverse
+  //this value alters the neutral position and upper/lower limits of the ESC output range
+  90,    //outputcentre: limits are usually 0-180 degrees where 90 is neutral for an ESC. adjust if bot moves while throttle is neutral
+  130,   //outputmax: the upper/lower values shouldn't need to be changed unless your ESC is strange
+  40,    //outputmin: I am using 130 & 40 as the ESC cuts out when the full range is used. defaults = 90, 180, 0
+  //alter this to change how the wheels on the turning side will behave
+  //a setting of 2 will set the turning side to full reverse when steering is at full lock (allows the bot to turn on the spot)
+  //a setting of 1 won't reverse the wheels on the turning side, only stop them (bot will turn in an arc)
+  //supports float values between 0 and 2
+  2, //steering_sensitivity: default value is 2
   serial_output
 );
 
@@ -63,4 +62,3 @@ Receiver steer = Receiver(
   difference,
   rate_change_limit
 );
-
