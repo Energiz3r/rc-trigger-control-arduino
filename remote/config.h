@@ -24,6 +24,7 @@ const float steering_sensitivity = 2; //default value is 2
 //this works by detecting when steering and throttle are both within a certain range - the values the receiver outputs while the transmitter is turned off
 //your receiver may behave differently - if that's the case you can ignore this setting.
 const int lostconwaittime = 500; //time (in ms) to wait before setting outputs to neutral positions if receiver is outputting these ranges continuously
+const bool check_lost_con = true; // set to false to disable lost connection checking
 
 //configure digital pins on arduino
 ServoController servos = ServoController(

@@ -60,7 +60,7 @@ void loop() {
   int right_channel = 0;
   
   //only perform normal movements if the lost connection timer hasn't been exceeded
-  if (is_connected(throtpos, steerpos)) {
+  if (!check_lost_con || is_connected(throtpos, steerpos)) {
     
     //if the throttle position is above the neutral range (forward)
     if (throtpos > throttle.neutral_upper) {
