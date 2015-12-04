@@ -1,4 +1,5 @@
 #include <Servo.h>
+#include <Arduino.h>
 
 class ServoController {
   private:
@@ -14,7 +15,7 @@ class ServoController {
     float outputmax;
     float outputmin;
 	float steering_sensitivity;
-    void move(int left_move, int right_move, int throtpos, int steerpos, char* message, int value, bool swap);
+    void move(int left_move, int right_move, int throtpos, int steerpos, String message, int value, bool swap);
     void move(int left_move, int right_move, int throtpos, int steerpos);
     float calc_forward_throt(float throt_percent);
     float calc_backward_throt(float throt_percent);
