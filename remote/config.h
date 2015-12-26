@@ -2,12 +2,12 @@
 #include "ServoController.hpp"
 
 //serial output. 0 = off, 1 = status/output display, 2 = show PWM values (for calibrating receiver)
-const int serial_output = 2;
+const int serial_output = 0;
 
 //the maximum difference (in PWM value) each cycle to allow the input to change by. This prevents spikes in PWM input from instantly stopping or changing wheel direction (smoothes stop/go)
 const int difference = 50;
 //enable or disable this setting
-const bool rate_change_limit = true;
+const bool rate_change_limit = false;
 
 //this value alters the sensitivity of the safety cut off (when receiver loses connection to transmitter). you shouldn't need to change this
 //this works by detecting when steering and throttle are both within a certain range - the values the receiver outputs while the transmitter is turned off
@@ -17,8 +17,8 @@ const bool check_lost_con = true; // set to false to disable lost connection che
 
 //configure digital pins on arduino
 ServoController servos = ServoController(
-  22,    //esc_left: connect to left ESC signal wire
-  24,    //esc_right: right ESC signal wire
+  2,    //esc_left: connect to left ESC signal wire
+  3,    //esc_right: right ESC signal wire
   false, //channel_swap: swaps left/right output channels
   false, //steer_forward_swap: reverse steering direction while moving forward
   false, //steer_back_swap: reverse steering direction while moving in reverse
@@ -44,9 +44,9 @@ Receiver throttle = Receiver(
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
   1700, //lostcon_upper
   1600, //lostcon_lower
-  28, //rx_input: signal wire for receiver throttle (usually channel 2)
+  rate_change_limit,
   difference,
-  rate_change_limit
+  4 //rx_input: signal wire for receiver throttle (usually channel 2)
 );
 
 Receiver steer = Receiver(
@@ -58,7 +58,7 @@ Receiver steer = Receiver(
   //these are the output values from the receiver for when the transmitter is off or out of range. make sure you use a range that will capture the state consistently (it can fluctuate)
   1200, //lostcon_upper
   1000, //lostcon_lower
-  30, //rx_input receiver steering (usually channel 1)
+  rate_change_limit,
   difference,
-  rate_change_limit
+  5 //rx_input receiver steering (usually channel 1)
 );

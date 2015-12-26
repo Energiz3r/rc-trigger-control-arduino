@@ -52,6 +52,7 @@ bool is_connected(int throtpos, int steerpos) {
 }
 
 void loop() {
+  delay(10);
   //stores the current positions for the steering and throttle PWM values
   const int throtpos = throttle.update_position();
   const int steerpos = steer.update_position();
