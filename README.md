@@ -23,11 +23,7 @@ Channel 2 is usually the throttle. Connect the signal wire to the relevant pin o
 
 Wiring ESC (electronic speed controller):
 
-This firmware assumes you are using a standard R/C type ESC or compatible. If your ESC is designed to work with something other than a regular R/C receiver, it probably won't work with this code.
-Connect the left ESC signal wire to the relevant arduino pin.
-Same for the right ESC.
-
-If your ESC has an in-built BEC, it can feed power to both the arduino and receiver. Most R/C ESCs have this. Take the GND wires from both ESCs and connect to a GND header on the arduino. To power the arduino and receiver, connect one of the ESC +ve wires to a +5V header. Check to make sure your ESC outputs the correct voltage, otherwise you may need to skip this step and connect power to the barrel connector on the arduino.
+This firmware is modified for the CanaKit UK1122 2amp motor controller. See the documentation for info on how to wire it up corresponding to the code in the arduino file.
 
 Calibrating:
 
@@ -36,7 +32,3 @@ Have a read of the CONFIG section in the firmware file. You will need to put the
 Don't forget to also get the raw values for when you switch the transmitter off. In order for the arduino to detect when the connection is lost it needs to know what the receiver outputs while in this state - set these values on lines 43-46. [Let me know if you get strange behaviour when doing this - I haven't tested with any other receivers.]
 
 Setting the serial output mode on line 14 to 1 will show what the arduino is outputting (whether it is reversing, going forward, steering left etc). You can use this to check your values are correct and that it responds how it should.
-
-Lines 17 - 19 adjust the neutral position of your ESC and the upper (full throttle) and lower (full reverse) limits respectively. If you find the vehicle moves, or tries to move, while the throttle is neutral, adjust the neutral position to suit. If it won't reach full speed forward or backward, raise or lower the upper and lower limits respectively. The maximum output value is 180 and the minimum is 0.
-
-The steering sensitivity setting is explained in the config and as yet has not been tested at any values other than 1 or 2 (you may encounter unexpected behaviour or it may not work at all)
