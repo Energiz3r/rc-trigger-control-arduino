@@ -39,7 +39,7 @@ void ServoController::move(int left_move, int right_move, int throtpos, int stee
   }
 }
 
-void ServoController::move(int left_move, int right_move, int throtpos, int steerpos, char* message, int value, bool swap) {
+void ServoController::move(int left_move, int right_move, int throtpos, int steerpos, String message, int value, bool swap) {
   //debug output
   if (debug_level == 1) { 
     Serial.println(message + String(value)); 
@@ -66,18 +66,18 @@ float ServoController::calc_steering_size(float output_throt, float steer_percen
 void ServoController::steer_forward(int throtpos, int steerpos, float throt_percent) {
   //find the output throttle value
   int output = outputcentre + calc_forward_throt(throt_percent);
-  move(output, output, throtpos, steerpos, "(Forward) Both servos: ", output, false);  
+  move(output, output, throtpos, steerpos, String("(Forward) Both servos: "), output, false);  
 }
 
 void ServoController::steer_backward(int throtpos, int steerpos, float throt_percent) {
   //find the output throttle value
   int output = outputcentre - calc_backward_throt(throt_percent);
-  move(output, output, throtpos, steerpos, "(Reversing) Both servos: ", output, false);
+  move(output, output, throtpos, steerpos, String("(Reversing) Both servos: "), output, false);
 }
 
 void ServoController::steer_idle(int throtpos, int steerpos, bool log_movement) {
   if (log_movement) {
-    move(outputcentre, outputcentre, throtpos, steerpos, "(Neutral) Both servos: ", outputcentre, false);  
+    move(outputcentre, outputcentre, throtpos, steerpos, String("(Neutral) Both servos: "), outputcentre, false);  
   } else {
     move(outputcentre, outputcentre, throtpos, steerpos);  
   }
@@ -90,7 +90,7 @@ void ServoController::steer_forward_left(int throtpos, int steerpos, float throt
   //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
   float newoutput = regoutput - calc_steering_size(output_throt, steer_percent);
 
-  move(regoutput, newoutput, throtpos, steerpos, "(Forward) Left channel servo: ", newoutput, steer_forward_swap);
+  move(regoutput, newoutput, throtpos, steerpos, String("(Forward) Left channel servo: "), newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_forward_right(int throtpos, int steerpos, float throt_percent, float steer_percent) {
@@ -100,7 +100,7 @@ void ServoController::steer_forward_right(int throtpos, int steerpos, float thro
   //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
   float newoutput = regoutput - calc_steering_size(output_throt, steer_percent);
 
-  move(newoutput, regoutput, throtpos, steerpos, "(Forward) Right channel servo: ", newoutput, steer_forward_swap);
+  move(newoutput, regoutput, throtpos, steerpos, String("(Forward) Right channel servo: "), newoutput, steer_forward_swap);
 }
 
 void ServoController::steer_backward_left(int throtpos, int steerpos, float throt_percent, float steer_percent) {
@@ -110,7 +110,7 @@ void ServoController::steer_backward_left(int throtpos, int steerpos, float thro
   //take that percentage, and subtract it from the throttle output for the left channel, multiplied by sensitivity so it will go in reverse at full steer
   float newoutput = regoutput + calc_steering_size(output_throt, steer_percent);
 
-  move(regoutput, newoutput, throtpos, steerpos, "(Reversing) Left channel servo: ", newoutput, steer_back_swap);
+  move(regoutput, newoutput, throtpos, steerpos, String("(Reversing) Left channel servo: "), newoutput, steer_back_swap);
 }
 
 void ServoController::steer_backward_right(int throtpos, int steerpos, float throt_percent, float steer_percent) {
@@ -120,5 +120,5 @@ void ServoController::steer_backward_right(int throtpos, int steerpos, float thr
   //take that percentage, and subtract it from the throttle output for the right channel, multiplied by sensitivity so it will go in reverse at full steer
   float newoutput = regoutput + calc_steering_size(output_throt, steer_percent);
 
-  move(newoutput, regoutput, throtpos, steerpos, "(Reversing) Right channel servo: ", newoutput, steer_back_swap);
+  move(newoutput, regoutput, throtpos, steerpos, String("(Reversing) Right channel servo: "), newoutput, steer_back_swap);
 }
